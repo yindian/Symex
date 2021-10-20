@@ -107,7 +107,8 @@ MODULEENTRY32 GetModuleInfo(int ProcessID, char* ModuleName)
     }
 
     CloseHandle(hSnap);
-    return{ 0 };
+    memset(&Mod32, 0, sizeof(Mod32));
+    return Mod32;
 }
 
 
@@ -145,8 +146,8 @@ VOID cleanup(HANDLE hProcess)
 int main(int argc, char* argv[])
 {
     int pid = -1;
-    int offset = -1;
-    int address = -1;
+    __int64 offset = -1;
+    __int64 address = -1;
     char moduleName[MAX_MODULE_NAME32] = { 0 };
     char symbolPath[MAX_PATH] = { 0 };
 
@@ -176,11 +177,11 @@ int main(int argc, char* argv[])
         } else 
         if (strcmp(argv[i], "-o") == 0 || strcmp(argv[i], "--offset") == 0)
         {
-            sscanf_s(argv[i + 1], "%i", &offset);
+            sscanf_s(argv[i + 1], "%I64i", &offset);
         } else 
         if (strcmp(argv[i], "-a") == 0 || strcmp(argv[i], "--address") == 0)
         {
-            sscanf_s(argv[i + 1], "%i", &address);
+            sscanf_s(argv[i + 1], "%I64i", &address);
         } 
         else
         if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--verbose") == 0)
@@ -196,6 +197,14 @@ int main(int argc, char* argv[])
     if (pid == -1 || (offset == -1 && address == -1) || !strlen(moduleName)) {
         usage();
         return FALSE;
+    }
+    else if (verbose) {
+        if (offset != -1) {
+            printf("offset = %I64u\n", offset);
+        }
+        if (address != -1) {
+            printf("address = %I64u\n", address);
+        }
     }
 
     //
